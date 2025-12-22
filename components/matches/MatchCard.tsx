@@ -19,7 +19,7 @@ export function MatchCard({ match }: MatchCardProps) {
 
   // Calculate average confidence from predictions
   const avgConfidence = match.predictions && match.predictions.length > 0
-    ? match.predictions.reduce((sum, p) => sum + p.confidence, 0) / match.predictions.length
+    ? match.predictions.reduce((sum, p) => sum + p.confidence_score, 0) / match.predictions.length
     : 0
 
   return (
@@ -227,7 +227,7 @@ export function MatchCard({ match }: MatchCardProps) {
 
               {/* Handicap & Over/Under Preview */}
               <div className="grid grid-cols-2 gap-2">
-                {match.odds.handicap_home && (
+                {match.odds.handicap_home_odds && (
                   <div className="p-2 rounded-lg bg-surface/50 border border-border/50 hover:border-success/50 transition-colors">
                     <div className="text-[10px] text-text-secondary mb-1 flex items-center gap-1">
                       <span className="w-1 h-1 rounded-full bg-success"></span>
@@ -235,7 +235,7 @@ export function MatchCard({ match }: MatchCardProps) {
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-medium text-text-primary">{match.odds.handicap_line}</span>
-                      <span className="text-xs font-bold text-success">{match.odds.handicap_home.toFixed(2)}</span>
+                      <span className="text-xs font-bold text-success">{match.odds.handicap_home_odds.toFixed(2)}</span>
                     </div>
                   </div>
                 )}
@@ -247,7 +247,7 @@ export function MatchCard({ match }: MatchCardProps) {
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-medium text-text-primary">{match.odds.over_under_line}</span>
-                      <span className="text-xs font-bold text-warning">{match.odds.over?.toFixed(2) || '-'}</span>
+                      <span className="text-xs font-bold text-warning">{match.odds.over_odds?.toFixed(2) || '-'}</span>
                     </div>
                   </div>
                 )}
@@ -277,28 +277,28 @@ export function MatchCard({ match }: MatchCardProps) {
                   >
                     <div className="flex items-center justify-between mb-1.5">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-primary uppercase">{prediction.bet_type}</span>
+                        <span className="text-xs font-bold text-primary uppercase">{prediction.prediction_type}</span>
                         <span className="text-[10px] text-text-secondary">•</span>
                         <span className="text-xs text-text-primary font-medium truncate max-w-[120px]">
-                          {prediction.selection}
+                          {prediction.predicted_outcome}
                         </span>
                       </div>
                       <div className="flex items-center gap-1.5">
                         <div className={`w-1.5 h-1.5 rounded-full ${
-                          prediction.confidence >= 70 ? 'bg-success animate-pulse' :
-                          prediction.confidence >= 50 ? 'bg-warning' : 'bg-danger'
+                          prediction.confidence_score >= 70 ? 'bg-success animate-pulse' :
+                          prediction.confidence_score >= 50 ? 'bg-warning' : 'bg-danger'
                         }`}></div>
                         <span className={`text-xs font-bold ${
-                          prediction.confidence >= 70 ? 'text-success' :
-                          prediction.confidence >= 50 ? 'text-warning' : 'text-danger'
+                          prediction.confidence_score >= 70 ? 'text-success' :
+                          prediction.confidence_score >= 50 ? 'text-warning' : 'text-danger'
                         }`}>
-                          {prediction.confidence}%
+                          {prediction.confidence_score}%
                         </span>
                       </div>
                     </div>
-                    {prediction.reasoning && (
+                    {prediction.ai_analysis && (
                       <p className="text-[10px] text-text-secondary line-clamp-1 group-hover/pred:line-clamp-none transition-all">
-                        {prediction.reasoning}
+                        {prediction.ai_analysis}
                       </p>
                     )}
                   </div>
