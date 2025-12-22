@@ -148,3 +148,83 @@ export async function getUpcomingMatches(): Promise<MatchWithOdds[]> {
 export async function getFinishedMatches(): Promise<MatchWithOdds[]> {
   return getMatchesByStatus('finished')
 }
+
+export async function getFinishedMatchesWithinYear(): Promise<MatchWithOdds[]> {
+  const supabase = await createClient()
+
+  // Calculate date one year ago
+  const oneYearAgo = new Date()
+  oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1)
+  const oneYearAgoISO = oneYearAgo.toISOString()
+
+  const { data, error } = await supabase
+    .from('prematches')
+    .select('*')
+    .gte('start_date_msia', oneYearAgoISO)
+    .order('start_date_msia', { ascending: false }) // Most recent first
+    .limit(100)
+
+  if (error) {
+    console.error('Error fetching finished matches:', error)
+    return []
+  }
+
+  // Transform and filter by finished status
+  const matches = (data || []).map(prematch => {
+    const matchStatus = mapStatusShort(prematch.status_short)
+    return {
+      id: prematch.id.toString(),
+      fixture_id: prematch.fixture_id,
+      home_team: prematch.home_name || '',
+      away_team: prematch.away_name || '',
+      league: prematch.league_name || '',
+      match_date: prematch.start_date_msia,
+      status: matchStatus,
+      home_score: prematch.score_fulltime_home ?? null,
+      away_score: prematch.score_fulltime_away ?? null,
+      home_logo: prematch.home_logo || null,
+      away_logo: prematch.away_logo || null,
+      league_logo: prematch.league_logo || null,
+      created_at: prematch.created_at || new Date().toISOString(),
+      odds: null,
+      predictions: [],
+      profit_summary: null
+    }
+  }).filter(match => match.status === 'finished')
+
+  // Fetch all profit summaries for finished matches in one query
+  const fixtureIds = matches
+    .map(m => m.fixture_id)
+    .filter((id): id is number => id !== null && id !== undefined)
+
+  if (fixtureIds.length > 0) {
+    const { data: profitData } = await supabase
+      .from('profit_summary')
+      .select('fixture_id, total_profit, profit_moneyline, profit_handicap, profit_ou')
+      .in('fixture_id', fixtureIds)
+
+    if (profitData) {
+      // Group profit data by fixture_id
+      const profitByFixture = profitData.reduce((acc, row) => {
+        if (!acc[row.fixture_id]) {
+          acc[row.fixture_id] = {
+            total_profit: parseFloat(row.total_profit) || 0,
+            profit_moneyline: parseFloat(row.profit_moneyline) || 0,
+            profit_handicap: parseFloat(row.profit_handicap) || 0,
+            profit_ou: parseFloat(row.profit_ou) || 0
+          }
+        }
+        return acc
+      }, {} as Record<number, any>)
+
+      // Attach profit data to matches
+      matches.forEach(match => {
+        if (match.fixture_id && profitByFixture[match.fixture_id]) {
+          match.profit_summary = profitByFixture[match.fixture_id]
+        }
+      })
+    }
+  }
+
+  return matches
+}

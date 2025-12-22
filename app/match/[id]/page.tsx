@@ -1,9 +1,11 @@
 import { getMatchById } from '@/lib/api/matches'
+import { getProfitSummaryByFixtureId } from '@/lib/api/profit-summary'
 import { Card, CardBody, CardHeader } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { CurrentOdds } from '@/components/odds/CurrentOdds'
 import { LiveOddsRefresh } from '@/components/odds/LiveOddsRefresh'
 import { PredictionsSection } from '@/components/predictions/PredictionsSection'
+import { ProfitSummaryDisplay } from '@/components/profit/ProfitSummaryDisplay'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -20,6 +22,11 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ id
   const isLive = match.matchType === 'In Play'
   const isFinished = match.matchType === 'Finished' || match.matchType === 'Postponed' || match.matchType === 'Abandoned' || match.matchType === 'Not Played'
   const showScore = (isLive || isFinished) && match.home_score !== null && match.away_score !== null
+
+  // Fetch profit summary for finished matches
+  const profitSummary = isFinished && match.fixture_id
+    ? await getProfitSummaryByFixtureId(match.fixture_id)
+    : null
 
   return (
     <div className="min-h-screen bg-background py-8">
@@ -141,33 +148,66 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ id
           </CardBody>
         </Card>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Odds Section - Sticky on desktop */}
-          <div className="lg:sticky lg:top-8 lg:self-start h-fit">
-            <CurrentOdds
-              latestOdds={match.latestOdds}
-              matchType={match.matchType}
-              homeTeam={match.home_team}
-              awayTeam={match.away_team}
-            />
-          </div>
+        {/* Content Section - Show different content for finished matches */}
+        {isFinished ? (
+          /* Finished Matches */
+          profitSummary ? (
+            /* Show Profit Summary if available */
+            <div>
+              <ProfitSummaryDisplay
+                profitSummary={profitSummary}
+                homeTeam={match.home_team}
+                awayTeam={match.away_team}
+              />
+            </div>
+          ) : (
+            /* No Profit Summary Available */
+            <Card>
+              <CardBody className="p-12 text-center">
+                <div className="max-w-md mx-auto">
+                  <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-surface flex items-center justify-center">
+                    <svg className="w-10 h-10 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-bold text-text-primary mb-2">No Analysis Available</h3>
+                  <p className="text-text-secondary">
+                    AI has not analyzed this match. Profit and loss data is not available.
+                  </p>
+                </div>
+              </CardBody>
+            </Card>
+          )
+        ) : (
+          /* Live/Upcoming Matches - Show Odds & Predictions */
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Odds Section - Sticky on desktop */}
+            <div className="lg:sticky lg:top-8 lg:self-start h-fit">
+              <CurrentOdds
+                latestOdds={match.latestOdds}
+                matchType={match.matchType}
+                homeTeam={match.home_team}
+                awayTeam={match.away_team}
+              />
+            </div>
 
-          {/* Predictions Section */}
-          <div className="flex flex-col">
-            <PredictionsSection
-              predictions={match.predictions}
-              homeTeam={match.home_team}
-              awayTeam={match.away_team}
-              league={match.league}
-              matchStatus={`比分: ${match.home_score || 0} - ${match.away_score || 0}`}
-              matchType={match.matchType || undefined}
-            />
+            {/* Predictions Section */}
+            <div className="flex flex-col">
+              <PredictionsSection
+                predictions={match.predictions}
+                homeTeam={match.home_team}
+                awayTeam={match.away_team}
+                league={match.league}
+                matchStatus={`比分: ${match.home_score || 0} - ${match.away_score || 0}`}
+                matchType={match.matchType || undefined}
+              />
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
-      {/* Live odds auto-refresh */}
-      <LiveOddsRefresh matchType={match.matchType} />
+      {/* Live odds auto-refresh - only for live matches */}
+      {!isFinished && <LiveOddsRefresh matchType={match.matchType} />}
     </div>
   )
 }

@@ -18,6 +18,12 @@ export type { MatchType }
 export interface MatchWithOdds extends Match {
   odds: Odds | null
   predictions?: Prediction[]
+  profit_summary?: {
+    total_profit: number
+    profit_moneyline: number
+    profit_handicap: number
+    profit_ou: number
+  } | null
 }
 
 export interface MatchWithPredictions extends Match {

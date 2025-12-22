@@ -24,7 +24,25 @@ export async function Header() {
               href="/"
               className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors"
             >
-              Matches
+              Home
+            </Link>
+            <Link
+              href="/matches/upcoming"
+              className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors"
+            >
+              Upcoming
+            </Link>
+            <Link
+              href="/matches/history"
+              className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors"
+            >
+              History
+            </Link>
+            <Link
+              href="/pricing"
+              className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors"
+            >
+              Pricing
             </Link>
             {user && (
               <Link
