@@ -27,23 +27,23 @@ export function MatchCard({ match }: MatchCardProps) {
       <Card
         hover
         className={`h-full group relative overflow-hidden transition-all duration-300 ${
-          isUpcoming ? 'glow-border bg-gradient-to-br from-primary/5 via-surface to-surface hover:from-primary/10' : ''
+          isUpcoming ? 'border-primary/20 hover:border-primary/40 bg-surface/50 backdrop-blur-sm' : ''
         } ${
           isLive ? 'border-danger/50 bg-gradient-to-br from-danger/5 to-surface' : ''
         } ${
-          isFinished ? 'bg-gradient-to-br from-success/5 to-surface' : ''
+          isFinished ? 'border-success/20 bg-surface/50' : ''
         }`}
       >
-        {/* Animated background blob for upcoming matches */}
+        {/* Subtle animated glow for upcoming matches */}
         {isUpcoming && (
-          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-pulse-glow"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.02] via-transparent to-primary/[0.02] opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
         )}
 
         <CardBody className="relative z-10">
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-2 flex-1">
               {match.league_logo && (
-                <div className="w-5 h-5 rounded-full bg-white flex items-center justify-center flex-shrink-0 ring-2 ring-primary/20">
+                <div className="w-5 h-5 rounded-full bg-white flex items-center justify-center flex-shrink-0 shadow-sm">
                   <Image
                     src={match.league_logo}
                     alt={match.league}
@@ -103,7 +103,7 @@ export function MatchCard({ match }: MatchCardProps) {
             <div className="flex items-center justify-between group/team">
               <div className="flex items-center gap-3 flex-1">
                 {match.home_logo && (
-                  <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center flex-shrink-0 ring-2 ring-primary/10 group-hover/team:ring-primary/30 group-hover/team:scale-110 transition-all duration-300 shadow-sm">
+                  <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center flex-shrink-0 shadow-md group-hover/team:shadow-lg group-hover/team:scale-110 transition-all duration-300">
                     <Image
                       src={match.home_logo}
                       alt={match.home_team}
@@ -141,7 +141,7 @@ export function MatchCard({ match }: MatchCardProps) {
             <div className="flex items-center justify-between group/team">
               <div className="flex items-center gap-3 flex-1">
                 {match.away_logo && (
-                  <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center flex-shrink-0 ring-2 ring-danger/10 group-hover/team:ring-danger/30 group-hover/team:scale-110 transition-all duration-300 shadow-sm">
+                  <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center flex-shrink-0 shadow-md group-hover/team:shadow-lg group-hover/team:scale-110 transition-all duration-300">
                     <Image
                       src={match.away_logo}
                       alt={match.away_team}
@@ -210,17 +210,17 @@ export function MatchCard({ match }: MatchCardProps) {
                   <div className="h-px flex-1 bg-gradient-to-r from-border to-transparent"></div>
                 </div>
                 <div className="grid grid-cols-3 gap-2">
-                  <div className="p-2 rounded-lg bg-gradient-to-br from-primary/10 to-surface border border-primary/20 text-center hover:border-primary/50 transition-colors">
+                  <div className="p-2.5 rounded-lg bg-surface/80 border border-border/50 text-center hover:border-primary/50 hover:bg-primary/5 transition-all">
                     <div className="text-[10px] text-text-secondary mb-1 truncate">Home</div>
-                    <div className="text-sm font-bold text-primary">{match.odds.moneyline_home?.toFixed(2) || '-'}</div>
+                    <div className="text-sm font-bold text-text-primary">{match.odds.moneyline_home?.toFixed(2) || '-'}</div>
                   </div>
-                  <div className="p-2 rounded-lg bg-gradient-to-br from-warning/10 to-surface border border-warning/20 text-center hover:border-warning/50 transition-colors">
+                  <div className="p-2.5 rounded-lg bg-surface/80 border border-border/50 text-center hover:border-warning/50 hover:bg-warning/5 transition-all">
                     <div className="text-[10px] text-text-secondary mb-1">Draw</div>
-                    <div className="text-sm font-bold text-warning">{match.odds.moneyline_draw?.toFixed(2) || '-'}</div>
+                    <div className="text-sm font-bold text-text-primary">{match.odds.moneyline_draw?.toFixed(2) || '-'}</div>
                   </div>
-                  <div className="p-2 rounded-lg bg-gradient-to-br from-danger/10 to-surface border border-danger/20 text-center hover:border-danger/50 transition-colors">
+                  <div className="p-2.5 rounded-lg bg-surface/80 border border-border/50 text-center hover:border-danger/50 hover:bg-danger/5 transition-all">
                     <div className="text-[10px] text-text-secondary mb-1 truncate">Away</div>
-                    <div className="text-sm font-bold text-danger">{match.odds.moneyline_away?.toFixed(2) || '-'}</div>
+                    <div className="text-sm font-bold text-text-primary">{match.odds.moneyline_away?.toFixed(2) || '-'}</div>
                   </div>
                 </div>
               </div>
@@ -272,7 +272,7 @@ export function MatchCard({ match }: MatchCardProps) {
                 {match.predictions.slice(0, 2).map((prediction, index) => (
                   <div
                     key={prediction.id}
-                    className="p-2.5 rounded-lg bg-gradient-to-r from-primary/5 to-transparent border border-primary/20 hover:border-primary/40 transition-all group/pred"
+                    className="p-2.5 rounded-lg bg-surface/80 border border-border/50 hover:border-primary/40 hover:bg-primary/5 transition-all group/pred"
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
                     <div className="flex items-center justify-between mb-1.5">

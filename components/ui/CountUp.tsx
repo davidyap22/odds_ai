@@ -9,6 +9,7 @@ interface CountUpProps {
   suffix?: string
   prefix?: string
   className?: string
+  separator?: boolean
 }
 
 export function CountUp({
@@ -17,7 +18,8 @@ export function CountUp({
   decimals = 0,
   suffix = '',
   prefix = '',
-  className = ''
+  className = '',
+  separator = true
 }: CountUpProps) {
   const [count, setCount] = useState(0)
   const countRef = useRef(0)
@@ -56,7 +58,17 @@ export function CountUp({
     }
   }, [end, duration])
 
-  const displayValue = count.toFixed(decimals)
+  const formatNumber = (value: number) => {
+    if (separator) {
+      return value.toLocaleString('en-US', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+      })
+    }
+    return value.toFixed(decimals)
+  }
+
+  const displayValue = formatNumber(count)
 
   return (
     <span className={className}>

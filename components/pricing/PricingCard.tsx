@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import { SubscriptionPlan } from '@/lib/api/subscriptions'
 import { Card, CardBody } from '@/components/ui/Card'
 
@@ -8,6 +7,7 @@ interface PricingCardProps {
   plan: SubscriptionPlan
   isPopular?: boolean
   userId?: string
+  billingCycle: 'monthly' | 'yearly'
 }
 
 const tierColors = {
@@ -37,8 +37,7 @@ const tierIcons = {
   premium: '👑'
 }
 
-export function PricingCard({ plan, isPopular = false, userId }: PricingCardProps) {
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly')
+export function PricingCard({ plan, isPopular = false, userId, billingCycle }: PricingCardProps) {
   const colors = tierColors[plan.tier]
   const icon = tierIcons[plan.tier]
 
@@ -48,13 +47,8 @@ export function PricingCard({ plan, isPopular = false, userId }: PricingCardProp
     : 0
 
   const handleSubscribe = async () => {
-    if (!userId) {
-      window.location.href = '/login?redirect=/pricing'
-      return
-    }
-
     // TODO: Implement payment flow
-    alert(`Subscribe to ${plan.name} - ${billingCycle === 'monthly' ? 'Monthly' : 'Yearly'}`)
+    alert(`Subscribe to ${plan.name} - ${billingCycle === 'monthly' ? 'Monthly' : 'Yearly'}\nPrice: RM ${price.toFixed(2)}`)
   }
 
   return (
@@ -126,7 +120,7 @@ export function PricingCard({ plan, isPopular = false, userId }: PricingCardProp
           onClick={handleSubscribe}
           className={`w-full py-3 px-6 rounded-lg font-bold text-white transition-all ${colors.button} shadow-lg hover:shadow-xl`}
         >
-          {userId ? 'Subscribe Now' : 'Login to Subscribe'}
+          Subscribe Now
         </button>
 
         {/* Additional Info */}

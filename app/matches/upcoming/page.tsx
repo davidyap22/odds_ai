@@ -59,6 +59,7 @@ export default async function UpcomingMatchesPage() {
           matches={upcomingMatches}
           title=""
           emptyMessage="No upcoming matches scheduled"
+          useUpcomingLayout={true}
         />
       </div>
     </div>

@@ -80,6 +80,7 @@ export default async function MatchHistoryPage() {
           matches={finishedMatches}
           title="All Finished Matches"
           emptyMessage="No finished matches found"
+          useFinishedLayout={true}
         />
       </div>
     </div>

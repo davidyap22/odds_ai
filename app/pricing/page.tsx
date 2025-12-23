@@ -1,11 +1,83 @@
-import { getSubscriptionPlans } from '@/lib/api/subscriptions'
-import { PricingCard } from '@/components/pricing/PricingCard'
-import { createClient } from '@/lib/supabase/server'
+'use client'
 
-export default async function PricingPage() {
-  const plans = await getSubscriptionPlans()
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+import { useState, useEffect } from 'react'
+import { SubscriptionPlan } from '@/lib/api/subscriptions'
+import { PricingCard } from '@/components/pricing/PricingCard'
+
+// Demo subscription plans
+const demoPlans: SubscriptionPlan[] = [
+  {
+    id: 'basic-plan',
+    name: 'Basic',
+    name_chinese: '基础版',
+    price_monthly: 29.90,
+    price_yearly: 299.00,
+    tier: 'basic',
+    features: [
+      'AI-powered match predictions',
+      '10 predictions per day',
+      'Basic odds analysis',
+      'Match history tracking',
+      'Email support',
+      'Access to all leagues'
+    ],
+    max_predictions_per_day: 10,
+    has_live_odds: false,
+    has_advanced_analytics: false,
+    has_priority_support: false,
+    is_active: true
+  },
+  {
+    id: 'pro-plan',
+    name: 'Pro',
+    name_chinese: '专业版',
+    price_monthly: 79.90,
+    price_yearly: 799.00,
+    tier: 'pro',
+    features: [
+      'Everything in Basic, plus:',
+      '50 predictions per day',
+      'Advanced AI analytics',
+      'Live odds updates',
+      'Historical performance tracking',
+      'Profit/Loss analysis',
+      'Priority email support',
+      'Custom alerts & notifications'
+    ],
+    max_predictions_per_day: 50,
+    has_live_odds: true,
+    has_advanced_analytics: true,
+    has_priority_support: false,
+    is_active: true
+  },
+  {
+    id: 'premium-plan',
+    name: 'Premium',
+    name_chinese: '高级版',
+    price_monthly: 149.90,
+    price_yearly: 1499.00,
+    tier: 'premium',
+    features: [
+      'Everything in Pro, plus:',
+      'Unlimited predictions',
+      'Advanced statistical models',
+      'Real-time live scores',
+      'Exclusive betting insights',
+      'API access for developers',
+      'Dedicated account manager',
+      'Priority 24/7 support',
+      'Early access to new features'
+    ],
+    max_predictions_per_day: null,
+    has_live_odds: true,
+    has_advanced_analytics: true,
+    has_priority_support: true,
+    is_active: true
+  }
+]
+
+export default function PricingPage() {
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly')
 
   return (
     <div className="min-h-screen bg-background py-12 px-4">
@@ -23,50 +95,40 @@ export default async function PricingPage() {
         {/* Pricing Toggle */}
         <div className="flex justify-center mb-12">
           <div className="bg-surface border border-border rounded-lg p-1 flex gap-1">
-            <button className="px-6 py-2 rounded-lg bg-primary text-white font-semibold transition-all">
+            <button
+              onClick={() => setBillingCycle('monthly')}
+              className={`px-6 py-2 rounded-lg font-semibold transition-all ${
+                billingCycle === 'monthly'
+                  ? 'bg-primary text-white'
+                  : 'text-text-secondary hover:text-text-primary'
+              }`}
+            >
               Monthly
             </button>
-            <button className="px-6 py-2 rounded-lg text-text-secondary hover:text-text-primary font-semibold transition-all">
+            <button
+              onClick={() => setBillingCycle('yearly')}
+              className={`px-6 py-2 rounded-lg font-semibold transition-all ${
+                billingCycle === 'yearly'
+                  ? 'bg-primary text-white'
+                  : 'text-text-secondary hover:text-text-primary'
+              }`}
+            >
               Yearly <span className="text-success text-sm ml-1">(Save 17%)</span>
             </button>
           </div>
         </div>
 
-        {/* Pricing Cards or Setup Message */}
-        {plans.length > 0 ? (
-          <div className="grid md:grid-cols-3 gap-8 mb-12">
-            {plans.map((plan, index) => (
-              <PricingCard
-                key={plan.id}
-                plan={plan}
-                isPopular={index === 1}
-                userId={user?.id}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="bg-surface border border-border rounded-lg p-12 text-center mb-12">
-            <div className="text-6xl mb-4">⚙️</div>
-            <h3 className="text-xl font-bold text-text-primary mb-4">
-              Subscription Plans Setup Required
-            </h3>
-            <p className="text-text-secondary mb-6 max-w-2xl mx-auto">
-              Please execute the SQL migration file in Supabase to create subscription plans.
-            </p>
-            <div className="bg-background border border-border rounded-lg p-6 text-left max-w-3xl mx-auto">
-              <p className="text-sm font-semibold text-text-primary mb-3">Steps:</p>
-              <ol className="text-sm text-text-secondary space-y-2 list-decimal list-inside">
-                <li>Go to <a href="https://app.supabase.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Supabase Dashboard</a></li>
-                <li>Select your project</li>
-                <li>Click on <strong className="text-text-primary">SQL Editor</strong> in the left menu</li>
-                <li>Click <strong className="text-text-primary">New Query</strong></li>
-                <li>Copy the contents of <code className="text-primary bg-background px-2 py-1 rounded">supabase/migrations/create_subscriptions.sql</code></li>
-                <li>Paste and click <strong className="text-text-primary">Run</strong></li>
-                <li>Refresh this page</li>
-              </ol>
-            </div>
-          </div>
-        )}
+        {/* Pricing Cards */}
+        <div className="grid md:grid-cols-3 gap-8 mb-12">
+          {demoPlans.map((plan, index) => (
+            <PricingCard
+              key={plan.id}
+              plan={plan}
+              isPopular={index === 1}
+              billingCycle={billingCycle}
+            />
+          ))}
+        </div>
 
         {/* FAQ Section */}
         <div className="mt-20 max-w-3xl mx-auto">
